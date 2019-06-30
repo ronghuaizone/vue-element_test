@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>test</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 必须先引入vue  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- 列表的选择性禁用 start -->
+      <div class="chunk">
+        <p class="character">
+          列表的选择性禁用
+        </p>
+        <el-table
+          :data="tableData"
+          style="width: 100%"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column
+            type="selection"
+            width="55"
+            :selectable="statusSelectable"
+          ></el-table-column>
+          <el-table-column prop="date" label="日期" align="center">
+          </el-table-column>
+          <el-table-column prop="name" label="姓名" width="180" align="center">
+          </el-table-column>
+          <el-table-column prop="address" label="地址" align="center">
+          </el-table-column>
+        </el-table>
+        <div>所选ID:{{ checkedIDs }}</div>
+      </div>
+      <!-- 列表的选择性禁用 end -->
+      <!-- 跨页选中数据 start -->
+      <div class="chunk">
+        <p class="character">
+          跨页选中数据
+        </p>
+        <el-checkbox-group v-model="checkList" @change="handleCheckedCitiesChange">
+        <el-table
+          :data="pageData"
+          style="width: 100%" v-loading="listLoading"
+        >
+        <el-table-column  label="序号" align="center">
+                        <template slot-scope="scope">                        
+                            <el-checkbox :label="scope.row.id">{{(sendForm.pageNo-1)*10+scope.$index+1}}</el-checkbox>
+                        </template>
+                    </el-table-column>
+          ></el-table-column>
+          <el-table-column prop="date" label="日期" align="center">
+          </el-table-column>
+          <el-table-column prop="name" label="姓名" width="180" align="center">
+          </el-table-column>
+          <el-table-column prop="id" label="id" align="center">
+          </el-table-column>
+        </el-table>
+    </el-checkbox-group>
+        <div class="pagination-container">
+          <el-pagination
+            background
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="sendForm.pageNo"
+            :page-sizes="[10]"
+            :page-size="sendForm.pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          >
+          </el-pagination>
+        </div>
+        <div>所选ID:{{ checkList }}</div>
+        <!-- 跨页选中数据 end -->
+      </div>
+    </div>
+  </body>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        // 列表的选择性禁用 start
+        tableData: [
+          {
+            id: 1,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三',
+            address: '上海市普陀区金沙江路 1518 弄'
+          },
+          {
+            id: 2,
+            zt: 1,
+            date: '2016-05-04',
+            name: '李四',
+            address: '上海市普陀区金沙江路 1517 弄'
+          },
+          {
+            id: 3,
+            zt: 0,
+            date: '2016-05-01',
+            name: '王五',
+            address: '上海市普陀区金沙江路 1519 弄'
+          },
+          {
+            id: 4,
+            zt: 1,
+            date: '2016-05-03',
+            name: '王小虎',
+            address: '上海市普陀区金沙江路 1516 弄'
+          }
+        ],
+        checkedIDs: [],
+        // 列表的选择性禁用 end
+        // 跨页选中数据 start
+        sendForm: {
+          pageNo: 1,
+          pageSize: 10
+        },
+        pageData: [],
+        templateData: [
+          {
+            id: 1,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三1'
+          },
+          {
+            id: 2,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三2'
+          },
+          {
+            id: 3,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三3'
+          },
+          {
+            id: 4,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三4'
+          },
+          {
+            id: 5,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三5'
+          },
+          {
+            id: 6,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三6'
+          },
+          {
+            id: 7,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三7'
+          },
+          {
+            id: 8,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三8'
+          },
+          {
+            id: 9,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三9'
+          },
+          {
+            id: 10,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三10'
+          },
+          {
+            id: 11,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三11'
+          },
+          {
+            id: 12,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三12'
+          },
+          {
+            id: 13,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三13'
+          },
+          {
+            id: 14,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三14'
+          },
+          {
+            id: 15,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三15'
+          },
+          {
+            id: 16,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三16'
+          }
+        ],
+        listLoading: false,
+        total: 0,
+        checkList:[]
+        // 跨页选中数据 end
+      },
+      computed: {
+        pages() {
+          const pages = []
+          this.templateData.forEach((item, index) => {
+            const page = Math.floor(index / 10)
+            if (!pages[page]) {
+              pages[page] = []
+            }
+            pages[page].push(item)
+          })
+          return pages
+        }
+      },
+      created() {
+        this.getPageData()
+      },
+      methods: {
+        // 列表的选择性禁用 start
+        handleSelectionChange(e) {
+          this.checkedIDs = e.map(item => {
+            return item.id
+          })
+        },
+        statusSelectable(row, index) {
+          return Number(row.zt) === 0 ? true : false
+        },
+        // 列表的选择性禁用 end
+        // 跨页选中数据 start
+        handleSizeChange(val) {
+          this.sendForm.pageSize = val
+          this.getPageData()
+        },
+        handleCurrentChange(val) {
+          this.sendForm.pageNo = val
+          this.getPageData()
+        },
+        getPageData() {
+          this.listLoading = true
+          setTimeout(() => {
+            this.total = this.templateData.length
+            this.pageData = this.pages[this.sendForm.pageNo - 1]
+            this.listLoading = false
+          }, 1000)
+        },
+        handleCheckedCitiesChange(e){
+            console.log(e,'998877e',this.checkList,'checkList')
+        }
+        // 跨页选中数据 end
+      },
+      mounted() {}
+    })
+  </script>
+  <style>
+    #app {
+      margin: 100px 20px 0 20px;
+    }
+    #app {
+      margin: 100px 20px 0 20px;
+    }
+
+    .chunk {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .character {
+      font-style: oblique;
+    }
+
+    .subblock {
+      display: flex;
+      justify-content: center;
+      /* align-items: center; */
+    }
+
+    .answer {
+      margin-left: 100px;
+    }
+
+    .el-tree {
+      width: 400px;
+    }
+
+    .styleTree {
+      width: 200px;
+    }
+  </style>
+</html>
