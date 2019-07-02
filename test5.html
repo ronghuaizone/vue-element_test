@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>test</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 必须先引入vue  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <!-- 树级结构的数据，点击向上获取所有父级id 方法一 start -->
+        <div class="chunk">
+            <p class="character">树级结构的数据，点击向上获取所有父级id -- 方法一</p>
+            <div class="subblock">
+                <div class="answer">
+                    <strong>原始数据：</strong>
+                    <el-tree :data="data" :props="defaultProps" node-key="id" highlight-current
+                        @current-change="treeChange" class="styleTree"></el-tree>
+                </div>
+                <div class="answer">
+                    <strong>展示原始数据：</strong>
+                    <el-tree :data="data" :props="defaultPropsData"></el-tree>
+                </div>
+                <div class="answer">
+                    <strong>处理后：</strong>
+                    <el-tree :data="addData" :props="disposeDefaultProps"></el-tree>
+                </div>
+                <div class="answer">
+                    <strong>结果：</strong>
+                    <div>
+                        {{answerData}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 树级结构的数据，点击向上获取所有父级id 方法一 end -->
+        <!-- 树级结构的数据，点击向上获取所有父级id 方法二 start -->
+        <div class="chunk">
+            <p class="character">树级结构的数据，点击向上获取所有父级id -- 方法二</p>
+            <div class="subblock">
+                <div class="answer">
+                    <strong>处理数据：</strong>
+                    <el-tree :data="methods2AddData" :props="defaultProps" @node-click="handleNodeClick" node-key="id"
+                        highlight-current class="styleTree"></el-tree>
+                </div>
+                <div class="answer">
+                    <strong>展示原始数据：</strong>
+                    <el-tree :data="data" :props="defaultPropsData"></el-tree>
+                </div>
+                <div class="answer">
+                    <strong>处理后：</strong>
+                    <el-tree :data="methods2AddData" :props="methods2Props"></el-tree>
+                </div>
+                <div class="answer">
+                    <strong>结果：</strong>
+                    <div>
+                        {{methods2AnswerData}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 树级结构的数据，点击向上获取所有父级id 方法二 end -->
+    </div>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            //树级结构数据 方法一  start
+            data: [{
+                    id: 1,
+                    name: '张11',
+                    children: [{
+                            id: 4,
+                            name: '张22',
+                            children: null
+                        },
+                        {
+                            id: 10,
+                            name: '张33',
+                            children: [{
+                                id: 6,
+                                name: '张44',
+                                children: null
+                            }]
+                        }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: '张55',
+                    children: [{
+                        id: 5,
+                        name: '张66',
+                        children: null
+                    }, {
+                        id: 11,
+                        name: '张88',
+                        children: [{
+                            id: 12,
+                            name: '张77',
+                            children: null
+                        }]
+                    }]
+                }
+            ],
+            addData: [],
+            answerData: [],
+            defaultProps: {
+                children: 'children',
+                label: 'name'
+            },
+            defaultPropsData: {
+                children: 'children',
+                // label: 'id',
+                label: function (a, b) {
+                    console.log("###label", a, b)
+                    return 'name:' + a.name + '--' + 'id:' + a.id
+                },
+            },
+            disposeDefaultProps: {
+                children: 'children',
+                // label: 'id',
+                label: function (a, b, c) {
+                    console.log("###label", a, b, c)
+                    return 'name:' + a.name + '--' + 'id:' + a.id + '--' + 'parent_id:' + a.parent_id
+                },
+            },
+            //树级结构数据 方法一 end
+            //树级结构数据 方法二 start
+            methods2AddData: [],
+            methods2Props: {
+                children: 'children',
+                // label: 'id',
+                label: function (a, b, c) {
+                    console.log("###label", a, b, c)
+                    return 'name:' + a.name + '--' + 'id:' + a.id + '--' + 'parentsId:' + a.parentsId
+                },
+            },
+            methods2AnswerData: [],
+            //树级结构数据 方法二 end
+        },
+        created() {
+            //树级结构数据 方法一 start
+            this.addData = JSON.parse(JSON.stringify(this.data))
+            this.setParent(this.addData, 0)
+            //树级结构数据  end
+            this.methods2AddData = JSON.parse(JSON.stringify(this.data))
+            this.addParentsId(this.methods2AddData)
+        },
+        methods: {
+            //树级结构数据 方法一 start
+            treeChange(e) {
+                // console.log(e, 'treeChange')
+                this.answerData = this.getParent(this.addData, e.id)
+                console.log(this.addData, 'this.addData---', 'this.data', this.data)
+            },
+            setParent(data, pid) { //加一个父级id字段标记
+                data.forEach(v => {
+                    v.parent_id = pid
+                    if (v.children && v.children.length) {
+                        this.setParent(v.children, v.id)
+                    }
+                });
+            },
+            getParent(data2, nodeId2) {
+                var arrRes = [];
+                if (data2.length == 0) {
+                    if (!!nodeId2) {
+                        arrRes.unshift(nodeId2);
+                    }
+                    return arrRes;
+                }
+                let rev = (data, nodeId) => {
+                    for (var i = 0, length = data.length; i < length; i++) {
+                        let node = data[i];
+                        if (node.id == nodeId) {
+                            arrRes.unshift(nodeId);
+                            rev(data2, node.parent_id);
+                            break;
+                        } else {
+                            if (!!node.children) {
+                                rev(node.children, nodeId);
+                            }
+                        }
+                    }
+                    return arrRes;
+                };
+                arrRes = rev(data2, nodeId2);
+                return arrRes;
+                //树级结构数o据 方法一 end
+                //树级结构数据 方法二 start
+            },
+            addParentsId(nodes, parentIds) {
+                nodes.map(node => {
+                    var ids = parentIds ? JSON.parse(JSON.stringify(parentIds)) : [];
+                    ids.push(node.id)
+                    node.parentsId = ids;
+                    if (node.children) {
+                        this.addParentsId(node.children, node.parentsId);
+                    }
+                })
+                return nodes;
+            },
+            handleNodeClick(e) { // 树级结构的数据，点击向上获取所有父级id方法
+                console.log(e, 'handleNodeClick')
+                console.log(this.methods2AddData, 'this.methods2AddData')
+                this.methods2AnswerData = e.parentsId
+            },
+            //树级结构数o据 方法二 end
+        },
+        mounted() {}
+    });
+</script>
+<style>
+    #app {
+        margin: 100px 20px 0 20px;
+    }
+
+    .chunk {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center
+    }
+
+    .character {
+        font-style: oblique;
+    }
+
+    .subblock {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        /* align-items: center; */
+    }
+
+    .answer {
+        flex:1;
+    }
+
+    /* .el-tree {
+        width: 400px;
+    } */
+
+    /* .styleTree {
+        width: 200px;
+    } */
+</style>
+
+</html>
