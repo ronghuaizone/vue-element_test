@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>test6</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 必须先引入vue  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- 树级结构的数据,搜索对应id,返回所对对象 start -->
+      <div class="chunk">
+        <p class="character">
+          树级结构的数据,搜索对应id,返回所对对象
+        </p>
+        <div class="subblock">
+          <div class="answer">
+            <strong>原始数据：</strong>
+            <el-tree
+              :data="data"
+              :props="defaultProps"
+              node-key="id"
+              highlight-current
+              @current-change="treeChange"
+              class="styleTree"
+            ></el-tree>
+          </div>
+          <div class="answer">
+            <strong>展示原始数据：</strong>
+            <el-tree :data="data" :props="defaultPropsData"></el-tree>
+          </div>
+          <div class="answer">
+            <strong>结果：</strong>
+            <div style="display: flex;">
+              <el-input
+                placeholder="请输入id"
+                v-model="inputVal"
+                clearable
+                @clear="clearAll"
+              ></el-input>
+              <el-button @click="searchData">搜索</el-button>
+            </div>
+            <div style="margin-top: 30px">结果：{{ answerData }}</div>
+          </div>
+        </div>
+      </div>
+      <!-- 树级结构的数据,搜索对应id,返回所对对象 end -->
+      </div>
+    </div>
+  </body>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        //   树级结构的数据,搜索对应id,返回所对对象 start
+        data: [
+          {
+            id: 1,
+            name: '张11',
+            children: [
+              {
+                id: 4,
+                name: '张22',
+                children: null
+              },
+              {
+                id: 10,
+                name: '张33',
+                children: [
+                  {
+                    id: 6,
+                    name: '张44',
+                    children: null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            id: 2,
+            name: '张55',
+            children: [
+              {
+                id: 5,
+                name: '张66',
+                children: null
+              },
+              {
+                id: 11,
+                name: '张88',
+                children: [
+                  {
+                    id: 12,
+                    name: '张77',
+                    children: null
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        defaultProps: {
+          children: 'children',
+          label: 'name'
+        },
+        defaultPropsData: {
+          children: 'children',
+          // label: 'id',
+          label: function(a, b) {
+            console.log('###label', a, b)
+            return 'name:' + a.name + '--' + 'id:' + a.id
+          }
+        },
+        answerData: null,
+        hasResult: false,
+        inputVal: null
+        //   树级结构的数据,搜索对应id,返回所对对象 end
+      },
+      computed: {
+      },
+      created() {
+        this.getPageData()
+      },
+      methods: {
+        //   树级结构的数据,搜索对应id,返回所对对象 start
+        treeChange(e) {
+          console.log(e, '998877')
+        },
+        searchData() {
+          this.answerData = null
+          this.hasResult = false
+          this.answerData = this.getCurrentPart(this.inputVal, this.data)
+          console.log(this.answerData, 'this.answerData')
+        },
+        clearAll() {
+          this.answerData = null
+          this.inputVal = null
+        },
+        //通过递归查找 children
+        getCurrentPart(id, items) {
+          debugger
+          let result
+          for (var i in items) {
+            if (this.hasResult) {
+              break
+            }
+            let item = items[i]
+            if (item.id == id) {
+              result = item
+              this.hasResult = true
+              break
+            } else if (item.children) {
+              result = this.getCurrentPart(id, item.children)
+            }
+          }
+          return result
+        }
+        //   树级结构的数据,搜索对应id,返回所对对象 end
+      },
+      mounted() {}
+    })
+  </script>
+  <style>
+    #app {
+      margin: 100px 20px 0 20px;
+    }
+    #app {
+      margin: 100px 20px 0 20px;
+    }
+
+    .chunk {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .character {
+      font-style: oblique;
+    }
+
+    .subblock {
+      display: flex;
+      justify-content: center;
+      /* align-items: center; */
+    }
+
+    .answer {
+      margin-left: 100px;
+    }
+
+    .el-tree {
+      width: 400px;
+    }
+
+    .styleTree {
+      width: 200px;
+    }
+  </style>
+</html>
