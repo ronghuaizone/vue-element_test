@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>test4</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 必须先引入vue  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div class="chunk">
+            <p class="character">前端新增、删除，批量删除(删除存在后台数据和新添加的数据)以及提交（姓名和地址一样）合并对象，数字累加</p>
+            <div>
+                <el-button type="primary" plain @click="addLine">添加行</el-button>
+                <el-button type="danger" plain @click="onDelAll">批量删除</el-button>
+            </div>
+            <el-form label-position="right" status-icon :rules="rules" :model="ruleForm" ref="ruleForm">
+                <el-table ref="multipleTable" :data="ruleForm.list" tooltip-effect="dark" style="width: 100%"
+                    @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" width="55" align="center">
+                    </el-table-column>
+                    <el-table-column label="数字" align="center">
+                        <template slot-scope="scope">
+                            <el-form-item :prop="'list.' + scope.$index + '.num'"
+                                :rules="[{ required: true, message: '请输入数字', trigger: 'blur' },]">
+                                <el-input-number v-model.trim="scope.row.num" :step="1" :min="0" :precision="2"
+                                    placeholder="请输入数字"></el-input-number>
+                            </el-form-item>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="姓名" align="center">
+                        <template slot-scope="scope">
+                            <el-form-item :prop="'list.' + scope.$index + '.name'"
+                                :rules="[{ required: true, message: '请输入姓名', trigger: 'blur' },]">
+                                <el-input v-model.trim="scope.row.name" type="text" placeholder="请输入姓名"></el-input>
+                            </el-form-item>
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="address" label="地址" align="center">
+                        <template slot-scope="scope">
+                            <el-form-item :prop="'list.' + scope.$index + '.address'"
+                                :rules="[{ required: true, message: '请输入地址', trigger: 'blur' },]">
+                                <el-input v-model.trim="scope.row.address" type="text" placeholder="请输入地址"></el-input>
+                            </el-form-item>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="scope">
+                            <el-button type="danger" size="small" @click="onDel(scope.$index)">删除行</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </el-form>
+            <div style="margin-top:20px;display:flex;align-items:center;justify-content:center">
+                <el-button type="primary" @click="onSubmit">提交</el-button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            ruleForm: {
+                list: [{
+                    id: 1,
+                    address: '一步',
+                    name: '张三',
+                    num: 1
+                }, {
+                    id: 2,
+                    address: '两步',
+                    name: '李四',
+                    num: 12
+                }, {
+                    id: 3,
+                    address: '三步',
+                    name: '王二麻子',
+                    num: 13
+                }, {
+                    id: 4,
+                    address: '四步',
+                    name: '赵武',
+                    num: 14
+                }, {
+                    id: 5,
+                    address: '五步',
+                    name: '小六',
+                    num: 15
+                }, {
+                    id: 6,
+                    address: '六步',
+                    name: '小七',
+                    num: 1
+                }, {
+                    id: 7,
+                    address: '七步',
+                    name: '小八',
+                    num: 16
+                }]
+            },
+            multipleSelection: [],
+            rules: {},
+            matchsList: [],
+        },
+        created() {
+        },
+        methods: {
+            addLine() {
+                this.ruleForm.list.push({
+                    address: null,
+                    name: null,
+                    num: null,
+                    key: Date.now()
+                })
+            },
+            onDelAll() {
+
+                this.ruleForm.list = this.ruleForm.list.filter(
+                    item =>
+                    !this.multipleSelection.some(ele => {
+                        if ('id' in ele && 'id' in item && ele.id === item.id) return true
+                        if ('key' in ele && 'key' in item && ele.key === item.key) {
+                            return true
+                        }
+                    })
+                )
+            },
+            onDel(index) {
+                this.ruleForm.list.splice(index, 1)
+            },
+            handleSelectionChange(val) {
+                this.multipleSelection = val
+            },
+            onSubmit() {
+                this.$nextTick(() => {
+                    this.$refs['ruleForm'].validate(valid => {
+                        if (valid) {
+                            var result = {};
+                            for(var i = 0; i< this.ruleForm.list.length; i++) {
+                                var item = this.ruleForm.list[i];
+                                var unique = [item.address, item.name].join('-');
+                                if (result[unique]) {
+                                    item.num += result[unique].num;
+                                    result[unique] = item;
+                                    continue;
+                                }
+                            result[unique] = item;
+                            }
+                            const newList = Object.values(result)
+                            this.$message({
+                                type: 'success',
+                                message: newList
+                            })
+                            console.log(newList,'newList')
+                        } else {
+                            // console.log(this.ruleForm.list)
+                        }
+                    })
+                })
+            }
+        },
+        mounted() {}
+    });
+</script>
+<style>
+    #app {
+        margin-top: 100px;
+    }
+
+    .chunk {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center
+    }
+</style>
+
+</html>
