@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>布局</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+  <!-- 必须先引入vue  后使用element-ui -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <div class="content_top">
+      <span>布局：上面占一部分，下面居中占据剩下屏幕</span>
+    </div>
+    <div class="content_bottom">
+
+    </div>
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data: {},
+    computed: {},
+    created() {},
+    methods: {},
+    mounted() {}
+  })
+</script>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  #app {
+    background-color: #f8f9fe;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content_top {
+    width: 100%;
+    height: 77px;
+    /* background: rgba(255, 255, 255, 1); */
+    background: rgb(134, 120, 120);
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .content_bottom {
+    flex: 1;
+    margin: 24px 326px 0 326px;
+    /* background: rgba(255, 255, 255, 1); */
+    background: rgb(187, 167, 167);
+    padding: 0 312px;
+    position: relative;
+  }
+</style>
+
+</html>
