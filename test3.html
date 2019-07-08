@@ -53,7 +53,7 @@
         >
         <el-table-column  label="序号" align="center">
                         <template slot-scope="scope">                        
-                            <el-checkbox :label="scope.row.id">{{(sendForm.pageNo-1)*10+scope.$index+1}}</el-checkbox>
+                            <el-checkbox :label="scope.row.id">{{(sendForm.pageNo-1)*sendForm.pageSize+scope.$index+1}}</el-checkbox>
                         </template>
                     </el-table-column>
           ></el-table-column>
@@ -71,7 +71,7 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
             :current-page="sendForm.pageNo"
-            :page-sizes="[10]"
+            :page-sizes="[5,10,20,30,40,50]"
             :page-size="sendForm.pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total"
@@ -233,7 +233,7 @@
         pages() {
           const pages = []
           this.templateData.forEach((item, index) => {
-            const page = Math.floor(index / 10)
+            const page = Math.floor(index / this.sendForm.pageSize)
             if (!pages[page]) {
               pages[page] = []
             }
