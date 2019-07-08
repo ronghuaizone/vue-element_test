@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>表单校验</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+  <!-- 必须先引入vue  后使用element-ui -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <!-- 轮播+块状高亮 start -->
+    <div>
+      <p class="character">
+        <span>表单校验</span>
+      </p>
+      <el-form :model="dataForm" label-width="130px" class="demo-ruleForm" ref="ruleForm">
+        <div class="student_style_box">
+          <el-form-item class="student_style" label="老师名字：" prop="teacherName" :rules="{
+required: true, message: '请输入老师名字', trigger: 'blur'
+}">
+            <el-input style="width:350px" v-model.trim="dataForm.teacherName" placeholder="请输入老师名字，例如：张三"
+              autocomplete="off"></el-input>
+          </el-form-item>
+        </div>
+        <div class="card_box" v-for="(demain,index) in dataForm.list" :key="index">
+          <div class="card_content">
+            <div class="card_title">
+              <span>学生信息{{index+1}}</span>&nbsp;&nbsp;&nbsp;
+              <el-button type="danger" plain @click="delStudent(index)" :disabled="dataForm.list.length==1">删除这个学生
+              </el-button>
+            </div>
+            <div class="el_form_box">
+              <el-form-item label="学生姓名：" :prop="'list.' + index + '.studentName'" :rules="{
+required: true, message: '请输入学生姓名', trigger: 'blur'
+}">
+                <el-input style="width:350px" v-model.trim="demain.studentName" placeholder="请输入学生姓名，例如：李四"
+                  autocomplete="off">
+                </el-input>
+              </el-form-item>
+              <el-form-item label="学生地址：" :prop="'list.' + index + '.address'" :rules="{
+required: true, message: '请输入学生地址', trigger: 'blur'
+}">
+                <el-input style="width:350px" v-model.trim="demain.address" placeholder="请输入学生地址" autocomplete="off">
+                </el-input>
+              </el-form-item>
+            </div>
+            <div class="el_form_box">
+              <el-form-item label="家长姓名：" :prop="'list.' + index + '.parentsName'" :rules="{
+                required: true, message: '请输入家长姓名', trigger: 'blur'}">
+                <el-input style="width:350px" v-model.trim="demain.parentsName" placeholder="请输入家长姓名"
+                  autocomplete="off">
+                </el-input>
+              </el-form-item>
+              <el-form-item label="家长电话：" :prop="'list.' + index + '.parentsTelephone'" :rules="{
+                required: true, message: '请输入家长电话', trigger: 'blur'}">
+                <el-input style="width:350px" v-model.trim="demain.parentsTelephone" placeholder="请输入家长电话"
+                  autocomplete="off">
+                </el-input>
+              </el-form-item>
+            </div>
+            <div class="el_form_box">
+              <el-form-item label="家长工作单位：" :prop="'list.' + index + '.organization'" :rules="{
+required: true, message: '请输入家长工作单位', trigger: 'blur'}">
+                <el-input style="width:350px" v-model.trim="demain.organization" placeholder="请输入家长工作单位"
+                  autocomplete="off">
+              </el-form-item>
+            </div>
+          </div>
+        </div>
+      </el-form>
+      <div style="margin-top:20px">
+        <el-button type="primary" @click="addObject">新增</el-button>
+      </div>
+      <div class="bottom_btn_box">
+        <el-button type="danger" @click="clearObject" style="margin-right:20px">清空</el-button>
+        <el-button type="primary" @click="submitForm">提交</el-button>
+      </div>
+    </div>
+    <!-- 轮播+块状高亮 end -->
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      dataForm: {},
+    },
+    computed: {},
+    created() {
+      this.dataForm = {
+        teacherName: null,
+        list: [{
+          studentName: null,
+          address: null,
+          parentsName: null,
+          organization: null,
+          parentsTelephone: null
+        }]
+      }
+    },
+    methods: {
+      delStudent(index) {
+        if (this.dataForm.list.length > 1) {
+          this.dataForm.list.splice(index, 1)
+        } else {
+          this.dataForm = {
+            teacherName: null,
+            list: [{
+              studentName: null,
+              address: null,
+              parentsName: null,
+              organization: null,
+              parentsTelephone: null
+            }]
+          }
+        }
+      },
+      addObject() {
+        this.dataForm.list.push({
+          studentName: null,
+          address: null,
+          parentsName: null,
+          organization: null,
+          parentsTelephone: null
+        })
+      },
+      clearObject() {
+        this.dataForm = {
+          teacherName: null,
+          list: [{
+            studentName: null,
+            address: null,
+            parentsName: null,
+            organization: null,
+            parentsTelephone: null
+          }]
+        }
+        this.$refs.ruleForm.resetFields()
+      },
+      submitForm() {
+        this.$refs.ruleForm.validate((valid) => {
+          if (valid) {
+            this.$message({
+              message: '新建成功',
+              type: 'success'
+            })
+          } else {
+            return false
+          }
+        })
+      },
+    },
+    mounted() {}
+  })
+</script>
+<style>
+  #app {
+    margin: 100px 20px 0 20px;
+  }
+
+  .character {
+    display: flex;
+    justify-content: center;
+    align-self: center;
+  }
+
+  .card_content {
+    padding: 20px 0 0 0;
+    width: 100%;
+    margin: 20px 0;
+    background-color: rgba(247, 247, 247, 1);
+  }
+
+  .el_form_box {
+    display: flex;
+    padding-left: 20px;
+  }
+
+  .card_title {
+    margin: 0 0 20px 10px;
+  }
+
+  .bottom_btn_box {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+  }
+</style>
+
+</html>
