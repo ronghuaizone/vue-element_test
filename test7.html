@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>test7</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+  <!-- 必须先引入vue  后使用element-ui -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <!-- 切换--删除表单校验 start -->
+    <div class="chunk">
+      <p class="character">
+        切换--删除表单校验
+      </p>
+      <div class="subblock from_validate">
+        <el-form :model="ruleForm" :rules="rules" ref="rulesForm" label-width="100px" class="demo-ruleForm el_form_box">
+          <el-form-item label="">
+            <el-radio-group v-model="ruleForm.radio" @change="changeRadio">
+              <el-radio :label="1">按岗位推送</el-radio>
+              <el-radio :label="2">按组织推送</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="推送对象" prop="tsdxList" v-if="ruleForm.radio==1">
+            <el-checkbox-group v-model="ruleForm.tsdxList" @change="handleCheckedCitiesChange">
+              <el-checkbox v-for="item in RolesList" :key="item.roleId" :label="item.roleId">{{ item.roleName }}
+              </el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+          <el-form-item label="推送组织" v-if="ruleForm.radio==2" prop="tszzList">
+            <el-tree :data="authorizationData" :props="defaultProps" show-checkbox @node-click="handleNodeClick"
+              check-strictly highlight-current ref="tree" @check-change="check" node-key="gid"
+              :default-checked-keys="ruleForm.tszzList" :default-expanded-keys="expanded">
+            </el-tree>
+          </el-form-item>
+          <div class="create_box">
+            <el-button plain @click="submitForm">
+              创建
+            </el-button>
+          </div>
+        </el-form>
+      </div>
+    </div>
+    <!-- 切换--删除表单校验 end -->
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data: {
+      radio: 1,
+      ruleForm: {
+        checkList: [],
+        tsdxList: [],
+        tszzList: [],
+        radio: 1
+      },
+      rules: {
+        tsdxList: [{
+          required: true,
+          message: '请选择推送对象',
+          trigger: 'change'
+        }],
+        tszzList: [{
+          required: true,
+          message: '请选择推送组织',
+          trigger: 'change'
+        }]
+      },
+      RolesList: [{
+          roleId: '1',
+          roleName: '用户一'
+        },
+        {
+          roleId: '2',
+          roleName: '用户二'
+        },
+        {
+          roleId: '3',
+          roleName: '用户三'
+        }
+      ],
+      authorizationData: [{
+          gid: '111',
+          name: '组织111',
+          children: [{
+              gid: '112',
+              name: '组织112',
+              children: [{
+                gid: '113',
+                name: '组织113',
+                children: null
+              }]
+            },
+            {
+              gid: '114',
+              name: '组织114',
+              children: [{
+                gid: '115',
+                name: '组织115',
+                children: [{
+                  gid: '116',
+                  name: '组织116',
+                  children: null
+                }]
+              }]
+            },
+            {
+              gid: '117',
+              name: '组织117',
+              children: [{
+                gid: '118',
+                name: '组织118',
+                children: null
+              }]
+            }
+          ]
+        },
+        {
+          gid: '119',
+          name: '组织119',
+          children: [{
+            gid: '120',
+            name: '组织120',
+            children: [{
+                gid: '121',
+                name: '组织121',
+                children: null
+              },
+              {
+                gid: '122',
+                name: '组织122',
+                children: [{
+                  gid: '123',
+                  name: '组织123',
+                  children: null
+                }]
+              }
+            ]
+          }]
+        }
+      ],
+      expanded: [],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      }
+    },
+    // watch: {
+    //   'ruleForm.radio': {
+    //     handler: function (val, oldval) {
+    //       if(Number(val)==2){
+
+    //       }
+    //     },
+    //     deep: true
+    //   }
+    // },
+    computed: {
+    },
+    created() {
+      this.expanded.push(this.authorizationData[0].gid)
+    },
+    methods: {
+      changeRadio(e) {
+        // console.log(e, 998877)
+        if (Number(e) == 1) {
+          this.ruleForm.tszzList = []
+          let _field = this.$refs.rulesForm.fields
+          _field.map(i => {
+            if (i.prop === 'tsdxList') {
+              i.resetField()
+              return false
+            }
+          })
+        } else if (Number(e) == 2) {
+          this.ruleForm.tsdxList = []
+          let _field = this.$refs.rulesForm.fields
+          _field.map(i => {
+            if (i.prop === 'tszzList') {
+              i.resetField()
+              return false
+            }
+          })
+        }
+        console.log(this.ruleForm.radio, 'this.ruleForm.radio')
+      },
+      handleCheckedCitiesChange(val) {},
+      submitForm() {
+        if (Number(this.ruleForm.radio == 2)) {
+          this.ruleForm.tszzList = this.$refs.tree
+            .getCheckedNodes()
+            .map(v => v.gid)
+        }
+        this.ruleForm.tsfs = this.ruleForm.checkList.join('/')
+
+        this.$refs.rulesForm.validate(valid => {
+          if (valid) {
+            this.$message({
+              message: '测试成功',
+              type: 'success'
+            })
+            this.$refs.rulesForm.resetFields()
+          } else {
+            return false
+          }
+        })
+      },
+      check(a, b, c) {
+        //b等于true 同时树被点击时获取所有选择项
+        // 获取方法一：getCheckedKeys--：this.$refs.tree.getCheckedKeys()
+        // 获取方法二：getCheckedNodes--：this.$refs.tree.getCheckedNodes().map(v => v.gid)
+        const flagList = this.$refs.tree.getCheckedKeys()
+        if (flagList.length) {
+          let _field = this.$refs.rulesForm.fields
+          _field.map(i => {
+            if (i.prop === 'tszzList') {
+              i.resetField()
+              return false
+            }
+          })
+        }
+      },
+      handleNodeClick(a, b, c) {}
+    },
+    mounted() {}
+  })
+</script>
+<style>
+  #app {
+    margin: 100px 20px 0 20px;
+  }
+
+  #app {
+    margin: 100px 20px 0 20px;
+  }
+
+  .chunk {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .character {
+    font-style: oblique;
+  }
+
+  .btn_box {
+    display: flex;
+  }
+
+  .subblock {
+    width: 100%;
+  }
+
+  .echarts-line-box {
+    margin-top: 20px;
+    background-color: #fff;
+  }
+
+  .echarts-line-box .carousel-box {
+    padding: 0 20px;
+  }
+
+  .carousel-box .carousel-item-box {
+    float: left;
+    position: relative;
+    overflow: hidden;
+    width: 20%;
+    height: 150px;
+    box-sizing: border-box;
+  }
+
+  .carousel-item-box .inset-item-box {
+    color: rgba(0, 0, 0, 0.647058823529412);
+    font-family: 'PingFangSC-Regular', 'PingFang SC';
+    margin: 0 20px;
+    padding: 20px;
+    cursor: pointer;
+  }
+
+  .carousel-box .carousel-box-title {
+    font-weight: 400;
+    font-style: normal;
+    font-size: 18px;
+  }
+
+  .carousel-box .carousel-box-type {
+    font-size: 14px;
+    margin-top: 20px;
+  }
+
+  .carousel-box .carousel-box-num {
+    font-family: 'ArialMT', 'Arial';
+    font-size: 30px;
+    margin-top: 20px;
+  }
+
+  .carousel-box .blueBgc {
+    background-color: rgba(16, 141, 233, 1);
+    color: #fff;
+  }
+
+  .el-carousel__container {
+    height: 150px;
+  }
+
+  .from_validate {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .create_box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
+</html>
