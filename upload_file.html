@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>upload_file</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 必须先引入vue  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="chunk">
+        <p class="character">
+          导入和导出
+        </p>
+        <div class="upload_file">
+            <el-upload style="display:inline-block" :limit="1" class="upload-demo" ref="upload" accept=".xls,.xlsx" action="/"
+              :file-list="fileList" :http-request="uploadSectionFile" :auto-upload="true">
+              <el-button slot="trigger" type="primary">导入Excel</el-button>
+            </el-upload>
+          <el-button slot="trigger" type="primary" @click="downLoadFile" style="margin-left:10%">直接下载</el-button>
+          <el-button slot="trigger" type="primary" @click="sendDownLoadFile" style="margin-left:10%">传参下载</el-button>
+        </div>
+        <el-checkbox-group v-model="checkList" @change="handleCheckedCitiesChange">
+        <el-table
+          :data="pageData"
+          style="width: 100%" v-loading="listLoading"
+        >
+        <el-table-column  label="序号" align="center">
+                        <template slot-scope="scope">                        
+                            <el-checkbox :label="scope.row.id">{{(sendForm.pageNo-1)*sendForm.pageSize+scope.$index+1}}</el-checkbox>
+                        </template>
+                    </el-table-column>
+          ></el-table-column>
+          <el-table-column prop="date" label="日期" align="center">
+          </el-table-column>
+          <el-table-column prop="name" label="姓名" width="180" align="center">
+          </el-table-column>
+          <el-table-column prop="id" label="id" align="center">
+          </el-table-column>
+        </el-table>
+    </el-checkbox-group>
+        <div class="pagination-container">
+          <el-pagination
+            background
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="sendForm.pageNo"
+            :page-sizes="[5,10,20,30,40,50]"
+            :page-size="sendForm.pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+          >
+          </el-pagination>
+        </div>
+        <div>所选ID:{{ checkList }}</div>
+      </div>
+    </div>
+  </body>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        // 跨页选中数据 start
+        sendForm: {
+          pageNo: 1,
+          pageSize: 10
+        },
+        pageData: [],
+        templateData: [
+          {
+            id: 1,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三1'
+          },
+          {
+            id: 2,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三2'
+          },
+          {
+            id: 3,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三3'
+          },
+          {
+            id: 4,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三4'
+          },
+          {
+            id: 5,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三5'
+          },
+          {
+            id: 6,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三6'
+          },
+          {
+            id: 7,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三7'
+          },
+          {
+            id: 8,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三8'
+          },
+          {
+            id: 9,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三9'
+          },
+          {
+            id: 10,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三10'
+          },
+          {
+            id: 11,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三11'
+          },
+          {
+            id: 12,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三12'
+          },
+          {
+            id: 13,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三13'
+          },
+          {
+            id: 14,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三14'
+          },
+          {
+            id: 15,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三15'
+          },
+          {
+            id: 16,
+            zt: 0,
+            date: '2016-05-02',
+            name: '张三16'
+          }
+        ],
+        listLoading: false,
+        total: 0,
+        checkList:[]
+        // 跨页选中数据 end
+      },
+      computed: {
+        pages() {
+          const pages = []
+          this.templateData.forEach((item, index) => {
+            const page = Math.floor(index / this.sendForm.pageSize)
+            if (!pages[page]) {
+              pages[page] = []
+            }
+            pages[page].push(item)
+          })
+          return pages
+        }
+      },
+      created() {
+        this.getPageData()
+      },
+      methods: {
+        // 跨页选中数据 start
+        handleSizeChange(val) {
+          this.sendForm.pageSize = val
+          this.getPageData()
+        },
+        handleCurrentChange(val) {
+          this.sendForm.pageNo = val
+          this.getPageData()
+        },
+        getPageData() {
+          this.listLoading = true
+          setTimeout(() => {
+            this.total = this.templateData.length
+            this.pageData = this.pages[this.sendForm.pageNo - 1]
+            this.listLoading = false
+          }, 1000)
+        },
+        handleCheckedCitiesChange(e){
+            console.log(e,'998877e',this.checkList,'checkList')
+        },
+        uploadSectionFile(param) {
+        var fileObj = param.file
+        this.$refs.upload.clearFiles()
+        // eslint-disable-next-line eqeqeq
+        console.log('fileObj', fileObj.name.split('.')[1] != 'xls')
+        // eslint-disable-next-line eqeqeq
+        if (fileObj.name.split('.')[1] != 'xls' && fileObj.name.split('.')[1] != 'xlsx') {
+          this.$message({
+            message: '支持xls、xlsx文件哦',
+            type: 'error'
+          })
+          this.$refs.upload.clearFiles()
+          return
+        }
+        // FormData 对象
+        var form = new FormData()
+        // 文件对象
+        form.append('file', fileObj)
+        // this.listLoading = true
+        // xxx(form).then(res => {
+        //   this.$message({
+        //     message: res,
+        //     type: 'success'
+        //   })
+        //   this.conditionForm.pageNo = 1
+        //   this.getPageData()
+        // }).catch(() => {
+        //   this.listLoading = false
+        // })
+        },
+        downLoadFile() {
+          // window.open(process.env.BASE_API + 'url/aaa/bbb')
+          window.open(window.origin + 'xtm/url/aaa/bbb')
+        },
+        sendDownLoadFile(){
+          // @ApiOperation("导出日志")
+          // @RequestMapping(value = "downloadExcel", method = RequestMethod.POST, consumes =
+          // MediaType.MULTIPART_FORM_DATA_VALUE)
+          // public void downloadExcel(@NotNull(message = "请选择需要导出的数据")@RequestParam(value = "ids") List<String> idList,
+          //   HttpServletResponse response){
+          //   userOperateLogService.downloadExcel(idList, response);
+          const form = document.createElement('form')
+          // form.action = process.env.BASE_API + 'xxx/xxx/downloadExcel'
+          form.action = window.origin + 'xtm/xxx/xxx/downloadExcel'
+          form.method = 'post'
+          form.target = '_blank'
+          form.enctype = 'multipart/form-data'
+          form.style = 'display: none;'
+
+          const input = document.createElement('input')
+          input.name = 'ids'
+          input.value = this.checkList
+          input.style = 'display: none;'
+          form.appendChild(input)
+          document.body.appendChild(form)
+
+          form.submit()
+        }
+      },
+      mounted() {}
+    })
+  </script>
+  <style>
+    #app {
+      margin: 100px 20px 0 20px;
+    }
+    #app {
+      margin: 100px 20px 0 20px;
+    }
+
+    .chunk {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .character {
+      font-style: oblique;
+    }
+
+    .subblock {
+      display: flex;
+      justify-content: center;
+      /* align-items: center; */
+    }
+
+    .answer {
+      margin-left: 100px;
+    }
+
+    .el-tree {
+      width: 400px;
+    }
+
+    .styleTree {
+      width: 200px;
+    }
+    .upload_file{
+      display: flex;
+      align-self: flex-start;
+    }
+  </style>
+</html>
